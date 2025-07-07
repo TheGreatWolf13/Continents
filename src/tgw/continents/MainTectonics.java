@@ -354,10 +354,25 @@ public final class MainTectonics {
                     NewPlate collidingPlate = plates[collidingPlateId];
                     if (evaluatingHeight < CONTINENTAL_SHELF && currentHeight >= evaluatingHeight) {
                         //Subduct this plate
-                        short sediment = (short) (SUBDUCTION_RATIO * (CONTINENTAL_SHELF - evaluatingHeight));
-                        SUBDUCTIONS[collidingPlateId].add(packCollision(plateId, globalX, globalY, sediment));
-                        plate.setCrust(globalX, globalY, (short) (evaluatingHeight - SUBDUCTION_STEP));
-                        helperImage.setRGB(globalX, globalY, 0xFF00_00FF);
+                        boolean fullySubmerged = true;
+                        testForFullySubmerged:
+                        for (int dx = -1; dx <= 1; dx++) {
+                            int newX = globalX + dx & WORLD_SIZE - 1;
+                            for (int dy = -1; dy <= 1; dy++) {
+                                int newY = globalY + dy & WORLD_SIZE - 1;
+                                int newIndex = newY * WORLD_SIZE + newX;
+                                if (idMap[newIndex] != collidingPlateId) {
+                                    fullySubmerged = false;
+                                    break testForFullySubmerged;
+                                }
+                            }
+                        }
+                        if (fullySubmerged) {
+                            short sediment = (short) (SUBDUCTION_RATIO * (CONTINENTAL_SHELF - evaluatingHeight));
+                            SUBDUCTIONS[collidingPlateId].add(packCollision(plateId, globalX, globalY, sediment));
+                            plate.setCrust(globalX, globalY, (short) (evaluatingHeight - SUBDUCTION_STEP));
+                            helperImage.setRGB(globalX, globalY, 0xFF00_00FF);
+                        }
                         continue;
                     }
                     if (currentHeight < CONTINENTAL_SHELF) {
