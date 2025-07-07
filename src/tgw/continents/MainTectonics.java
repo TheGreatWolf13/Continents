@@ -42,7 +42,6 @@ public final class MainTectonics {
     private static int imageHeightmapId;
     private static int imageHelperId = 1;
     private static int imagePlateId;
-    public static byte[] swapIdMap = new byte[WORLD_SIZE * WORLD_SIZE];
 
     static {
         for (int i = 0; i < NUM_PLATES; i++) {
@@ -323,9 +322,6 @@ public final class MainTectonics {
             plate.move();
         }
         //Update global maps, recording collisions
-        byte[] temp = idMap;
-        idMap = swapIdMap;
-        swapIdMap = temp;
         Arrays.fill(HEIGHTMAP, Short.MIN_VALUE);
         Arrays.fill(idMap, (byte) -1);
         int missingCrust = WORLD_SIZE * WORLD_SIZE;
