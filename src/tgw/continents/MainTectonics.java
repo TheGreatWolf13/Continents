@@ -310,7 +310,7 @@ public final class MainTectonics {
             mainLoop(plates);
             saveHeightmap();
             savePlates(plates, true);
-            ImageIO.write(helperImage, "png", new File(String.format("B:\\Desktop\\continents\\helper_%03d.png", imageHelperId++)));
+            ImageIO.write(helperImage, "png", new File(String.format(Location.ROOT_FOLDER + "\\helper_%03d.png", imageHelperId++)));
         }
     }
 
@@ -447,7 +447,7 @@ public final class MainTectonics {
                 image.setRGB(x, y, getHeightmapColor(HEIGHTMAP[getIndex(x, y)]));
             }
         }
-        ImageIO.write(image, "png", new File(String.format("B:\\Desktop\\continents\\heightmap_%03d.png", imageHeightmapId++)));
+        ImageIO.write(image, "png", new File(String.format(Location.ROOT_FOLDER + "\\heightmap_%03d.png", imageHeightmapId++)));
     }
 
     private static void savePlates(NewPlate @Nullable [] plates, boolean force) throws IOException {
@@ -466,7 +466,7 @@ public final class MainTectonics {
                 plate.attachDebugInfo(image);
             }
         }
-        ImageIO.write(image, "png", new File(String.format("B:\\Desktop\\continents\\plates_%03d.png", imagePlateId++)));
+        ImageIO.write(image, "png", new File(String.format(Location.ROOT_FOLDER + "\\plates_%03d.png", imagePlateId++)));
     }
 
     private static boolean shouldNodeBeRemoved(long node) {

@@ -789,7 +789,7 @@ public class NewPlate {
             }
         }
         this.attachDebugInfo(image);
-        ImageIO.write(image, "png", new File(String.format("B:\\Desktop\\continents\\plate#%03d_%03d.png", id, this.imageId++)));
+        ImageIO.write(image, "png", new File(String.format(Location.ROOT_FOLDER + "\\plate#%03d_%03d.png", id, this.imageId++)));
 //        System.out.printf("Plate %3d has mass = %s\n", id, Metric.format(this.mass, 3, "mu"));
     }
 
