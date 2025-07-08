@@ -416,7 +416,6 @@ public final class MainTectonics {
                         collidingPlate.setCrust(globalX, globalY, (short) (currentHeight + crust));
                         plate.setCrust(globalX, globalY, (short) (evaluatingHeight - crust));
                         COLLISIONS[plateId].add(packCollision(collidingPlateId, globalX, globalY, crust));
-                        helperImage.setRGB(globalX, globalY, 0xFFFF_0000);
                     }
                     else {
                         short crust = (short) ((currentHeight - CONTINENTAL_SHELF) * FOLDING_RATIO);
@@ -425,8 +424,8 @@ public final class MainTectonics {
                         COLLISIONS[collidingPlateId].add(packCollision(plateId, globalX, globalY, crust));
                         HEIGHTMAP[globalIndex] = heightmap[index];
                         idMap[globalIndex] = (byte) plateId;
-                        helperImage.setRGB(globalX, globalY, 0xFFFF_0000);
                     }
+                    helperImage.setRGB(globalX, globalY, 0xFFFF_0000);
                 }
             }
         }
