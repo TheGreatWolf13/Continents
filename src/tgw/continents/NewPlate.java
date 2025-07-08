@@ -155,7 +155,7 @@ public class NewPlate {
             for (int x = segmentData.x0; x <= segmentData.x1; ++x) {
                 int i = y * this.width + x;
                 if (this.segmentIdMap[i] == segmentId && this.heightmap[i] > MainTectonics.CONTINENTAL_SHELF) {
-                    destinationPlate.addCrustByCollision(globalX + x - localX, globalY + y - localY, this.heightmap[i]);
+                    destinationPlate.addCrustByCollision(globalX + x - localX & MainTectonics.WORLD_SIZE - 1, globalY + y - localY& MainTectonics.WORLD_SIZE - 1, this.heightmap[i]);
                     this.mass -= this.heightmap[i];
                     this.heightmap[i] = Short.MIN_VALUE;
                 }
