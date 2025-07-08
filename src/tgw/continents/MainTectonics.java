@@ -415,6 +415,7 @@ public final class MainTectonics {
         }
         //Handle Collisions
         for (int plateId = 0; plateId < NUM_PLATES; ++plateId) {
+            //This affects motion and "glues" plates together
             handleCollisions(plates, plateId);
         }
         //Reform crust
