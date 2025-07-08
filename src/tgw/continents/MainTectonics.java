@@ -301,6 +301,7 @@ public final class MainTectonics {
 //            plate.save(plateId);
 //        }
         for (int tick = 0; tick < 10; tick++) {
+            System.out.println("Tick " + tick);
             for (int i = 0; i < WORLD_SIZE; ++i) {
                 for (int j = 0; j < WORLD_SIZE; ++j) {
                     helperImage.setRGB(i, j, 0);
@@ -319,6 +320,24 @@ public final class MainTectonics {
             NewPlate plate = plates[plateId];
             plate.resetSegments();
             //TODO Erosion
+            short[] heightmap = plate.getHeightmap();
+            for (int index = 0, len = plate.getWidth() * plate.getHeight(); index < len; ++index) {
+                short localHeight = heightmap[index];
+                if (localHeight < -2_000 && localHeight > -6_400) {
+                    if (localHeight < -5_000) {
+                        heightmap[index] = (short) Math.max(localHeight - 10, -6_400);
+                    }
+                    else if (localHeight < -4_000) {
+                        heightmap[index] = (short) (localHeight - 33);
+                    }
+                    else if (localHeight < -3_000) {
+                        heightmap[index] = (short) (localHeight - 67);
+                    }
+                    else {
+                        heightmap[index] = (short) (localHeight - 80);
+                    }
+                }
+            }
             plate.move();
         }
         //Update global maps, recording collisions
@@ -397,6 +416,7 @@ public final class MainTectonics {
                         collidingPlate.setCrust(globalX, globalY, (short) (currentHeight + crust));
                         plate.setCrust(globalX, globalY, (short) (evaluatingHeight - crust));
                         COLLISIONS[plateId].add(packCollision(collidingPlateId, globalX, globalY, crust));
+                        helperImage.setRGB(globalX, globalY, 0xFFFF_0000);
                     }
                     else {
                         short crust = (short) ((currentHeight - CONTINENTAL_SHELF) * FOLDING_RATIO);
@@ -405,6 +425,7 @@ public final class MainTectonics {
                         COLLISIONS[collidingPlateId].add(packCollision(plateId, globalX, globalY, crust));
                         HEIGHTMAP[globalIndex] = heightmap[index];
                         idMap[globalIndex] = (byte) plateId;
+                        helperImage.setRGB(globalX, globalY, 0xFFFF_0000);
                     }
                 }
             }
