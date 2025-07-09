@@ -37,8 +37,8 @@ public final class MainTectonics {
     private static final float AGGR_OVERLAP_REL = 0.2F;
     //    private static final int AGGR_OVERLAP_ABS = 5_000;
     public static final boolean DEBUG = true;
+    public static final byte[] ID_MAP = new byte[WORLD_SIZE * WORLD_SIZE];
     public static BufferedImage helperImage;
-    public static byte[] idMap = new byte[WORLD_SIZE * WORLD_SIZE];
     private static int imageHeightmapId;
     private static int imageHelperId = 1;
     private static int imagePlateId;
@@ -64,14 +64,14 @@ public final class MainTectonics {
 
     private static int fillFromNeighbour(PlateArea[] plates, RandomGenerator random, int x, int y, Direction dir) {
         int neighbourIndex = getWrappedIndex(x + dir.offX, y + dir.offY);
-        byte plateId = idMap[neighbourIndex];
+        byte plateId = ID_MAP[neighbourIndex];
         if (plateId != -1) {
             return 1;
         }
-        plateId = idMap[getIndex(x, y)];
+        plateId = ID_MAP[getIndex(x, y)];
         if (random.nextFloat() < BASE_CHANCE[plateId] * plates[plateId].aspectRatioChanceMult(dir)) {
             plates[plateId].extend(dir, x, y);
-            idMap[neighbourIndex] = plateId;
+            ID_MAP[neighbourIndex] = plateId;
             return 2;
         }
         return 0;
@@ -217,7 +217,7 @@ public final class MainTectonics {
 
     public static void main(String[] args) throws IOException {
         helperImage = new BufferedImage(WORLD_SIZE, WORLD_SIZE, BufferedImage.TYPE_INT_ARGB);
-        Arrays.fill(idMap, (byte) -1);
+        Arrays.fill(ID_MAP, (byte) -1);
         PlateArea[] plateAreas = new PlateArea[NUM_PLATES];
         for (int plateId = 0; plateId < NUM_PLATES; plateId++) {
             byte oldId = 0;
@@ -228,9 +228,9 @@ public final class MainTectonics {
                 x = RANDOM.nextInt(WORLD_SIZE);
                 y = RANDOM.nextInt(WORLD_SIZE);
                 index = getIndex(x, y);
-                oldId = idMap[index];
+                oldId = ID_MAP[index];
             }
-            idMap[index] = (byte) plateId;
+            ID_MAP[index] = (byte) plateId;
             NODES.add(createNode(x, y));
             //noinspection ObjectAllocationInLoop
             plateAreas[plateId] = new PlateArea(x, y);
@@ -267,10 +267,10 @@ public final class MainTectonics {
         for (int i = 0; i < NUM_PLATES; ++i) {
             PlateArea area = plateAreas[i];
             //noinspection ObjectAllocationInLoop
-            plates[i] = new NewPlate(HEIGHTMAP, area.x0, area.y0, area.width, area.height, idMap, (byte) i);
+            plates[i] = new NewPlate(HEIGHTMAP, area.x0, area.y0, area.width, area.height, ID_MAP, (byte) i);
         }
         Arrays.sort(plates, Comparator.comparingDouble(NewPlate::getMass));
-        Arrays.fill(idMap, (byte) -1);
+        Arrays.fill(ID_MAP, (byte) -1);
         for (int plateId = 0; plateId < NUM_PLATES; plateId++) {
             NewPlate plate = plates[plateId];
             short[] heightmap = plate.getHeightmap();
@@ -287,7 +287,7 @@ public final class MainTectonics {
                     int globalX = x & WORLD_SIZE - 1;
                     int globalY = y & WORLD_SIZE - 1;
                     int globalIndex = globalY * WORLD_SIZE + globalX;
-                    idMap[globalIndex] = (byte) plateId;
+                    ID_MAP[globalIndex] = (byte) plateId;
                 }
             }
             plate.save(plateId);
@@ -342,7 +342,7 @@ public final class MainTectonics {
         }
         //Update global maps, recording collisions
         Arrays.fill(HEIGHTMAP, Short.MIN_VALUE);
-        Arrays.fill(idMap, (byte) -1);
+        Arrays.fill(ID_MAP, (byte) -1);
         int missingCrust = WORLD_SIZE * WORLD_SIZE;
         for (int plateId = 0; plateId < NUM_PLATES; ++plateId) {
             NewPlate plate = plates[plateId];
@@ -360,11 +360,11 @@ public final class MainTectonics {
                     int globalX = x & WORLD_SIZE - 1;
                     int globalY = y & WORLD_SIZE - 1;
                     int globalIndex = globalY * WORLD_SIZE + globalX;
-                    int collidingPlateId = idMap[globalIndex];
+                    int collidingPlateId = ID_MAP[globalIndex];
                     if (collidingPlateId == -1) {
                         //Empty space
                         HEIGHTMAP[globalIndex] = heightmap[index];
-                        idMap[globalIndex] = (byte) plateId;
+                        ID_MAP[globalIndex] = (byte) plateId;
                         --missingCrust;
                         continue;
                     }
@@ -380,7 +380,7 @@ public final class MainTectonics {
                             for (int dy = -1; dy <= 1; dy++) {
                                 int newY = globalY + dy & WORLD_SIZE - 1;
                                 int newIndex = newY * WORLD_SIZE + newX;
-                                if (idMap[newIndex] != collidingPlateId) {
+                                if (ID_MAP[newIndex] != collidingPlateId) {
                                     fullySubmerged = false;
                                     break testForFullySubmerged;
                                 }
@@ -414,7 +414,7 @@ public final class MainTectonics {
                             collidingPlate.setCrust(globalX, globalY, (short) (currentHeight - SUBDUCTION_STEP));
                             HEIGHTMAP[globalIndex] -= SUBDUCTION_STEP;
                             if (HEIGHTMAP[globalIndex] < TRENCH_DEPTH) {
-                                idMap[globalIndex] = (byte) plateId;
+                                ID_MAP[globalIndex] = (byte) plateId;
                                 HEIGHTMAP[globalIndex] = evaluatingHeight;
                             }
                             helperImage.setRGB(globalX, globalY, 0xFF00_00FF);
@@ -437,7 +437,7 @@ public final class MainTectonics {
                         collidingPlate.setCrust(globalX, globalY, (short) (currentHeight - crust));
                         COLLISIONS[collidingPlateId].add(packCollision(plateId, globalX, globalY, crust));
                         HEIGHTMAP[globalIndex] = heightmap[index];
-                        idMap[globalIndex] = (byte) plateId;
+                        ID_MAP[globalIndex] = (byte) plateId;
                     }
                     helperImage.setRGB(globalX, globalY, 0xFFFF_0000);
                 }
@@ -456,15 +456,15 @@ public final class MainTectonics {
         while (missingCrust > 0) {
             for (int y = 0, index = 0; y < WORLD_SIZE; ++y) {
                 for (int x = 0; x < WORLD_SIZE; ++x, ++index) {
-                    if (idMap[index] == -1) {
+                    if (ID_MAP[index] == -1) {
                         for (Direction dir : Direction.getRandomOrder(RANDOM)) {
                             int sideX = x + dir.offX & WORLD_SIZE - 1;
                             int sideY = y + dir.offY & WORLD_SIZE - 1;
                             int sideIndex = sideY * WORLD_SIZE + sideX;
-                            byte sidePlateId = idMap[sideIndex];
+                            byte sidePlateId = ID_MAP[sideIndex];
                             if (sidePlateId != -1) {
                                 --missingCrust;
-                                idMap[index] = sidePlateId;
+                                ID_MAP[index] = sidePlateId;
                                 HEIGHTMAP[index] = MID_OCEAN_RIDGES;
                                 plates[sidePlateId].setCrust(x, y, (short) MID_OCEAN_RIDGES);
                                 helperImage.setRGB(x, y, 0xFFFF_FFFF);
@@ -503,7 +503,7 @@ public final class MainTectonics {
         BufferedImage image = new BufferedImage(WORLD_SIZE, WORLD_SIZE, BufferedImage.TYPE_INT_ARGB);
         for (int y = 0; y < WORLD_SIZE; ++y) {
             for (int x = 0; x < WORLD_SIZE; ++x) {
-                byte plateId = idMap[getIndex(x, y)];
+                byte plateId = ID_MAP[getIndex(x, y)];
                 image.setRGB(x, y, plateId == -1 ? 0 : COLORS[plateId]);
             }
         }
