@@ -155,7 +155,7 @@ public class NewPlate {
             for (int x = segmentData.x0; x <= segmentData.x1; ++x) {
                 int i = y * this.width + x;
                 if (this.segmentIdMap[i] == segmentId && this.heightmap[i] > MainTectonics.CONTINENTAL_SHELF) {
-                    destinationPlate.addCrustByCollision(globalX + x - localX & MainTectonics.WORLD_SIZE - 1, globalY + y - localY& MainTectonics.WORLD_SIZE - 1, this.heightmap[i]);
+                    destinationPlate.addCrustByCollision(globalX + x - localX & MainTectonics.WORLD_SIZE - 1, globalY + y - localY & MainTectonics.WORLD_SIZE - 1, this.heightmap[i]);
                     this.mass -= this.heightmap[i];
                     this.heightmap[i] = Short.MIN_VALUE;
                 }
@@ -226,6 +226,19 @@ public class NewPlate {
         this.accY += ny * impulse / this.mass;
         plate.accX -= nx * impulse / (crust + plate.mass);
         plate.accY -= ny * impulse / (crust + plate.mass);
+    }
+
+    public boolean contains(int globalX, int globalY) {
+        int localX = this.getLocalX(globalX);
+        if (localX == Integer.MIN_VALUE) {
+            return false;
+        }
+        int localY = this.getLocalY(globalY);
+        if (localY == Integer.MIN_VALUE) {
+            return false;
+        }
+        int index = this.getIndex(localX, localY);
+        return this.heightmap[index] != Short.MIN_VALUE;
     }
 
     private int createSegment(int localX, int localY) {

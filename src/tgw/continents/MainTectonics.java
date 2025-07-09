@@ -300,7 +300,7 @@ public final class MainTectonics {
 //            plate.extendPlate(0, 0);
 //            plate.save(plateId);
 //        }
-        for (int tick = 0; tick < 10; tick++) {
+        for (int tick = 0; tick < 100; tick++) {
             System.out.println("Tick " + tick);
             for (int i = 0; i < WORLD_SIZE; ++i) {
                 for (int j = 0; j < WORLD_SIZE; ++j) {
@@ -396,15 +396,29 @@ public final class MainTectonics {
                     }
                     if (currentHeight < CONTINENTAL_SHELF) {
                         //Subduct colliding plate
-                        short sediment = (short) (SUBDUCTION_RATIO * (CONTINENTAL_SHELF - currentHeight));
-                        SUBDUCTIONS[plateId].add(packCollision(collidingPlateId, globalX, globalY, sediment));
-                        collidingPlate.setCrust(globalX, globalY, (short) (currentHeight - SUBDUCTION_STEP));
-                        HEIGHTMAP[globalIndex] -= SUBDUCTION_STEP;
-                        if (HEIGHTMAP[globalIndex] < TRENCH_DEPTH) {
-                            idMap[globalIndex] = (byte) plateId;
-                            HEIGHTMAP[globalIndex] = evaluatingHeight;
+                        boolean fullySubmerged = true;
+                        testForFullySubmerged:
+                        for (int dx = -1; dx <= 1; dx++) {
+                            int newX = globalX + dx & WORLD_SIZE - 1;
+                            for (int dy = -1; dy <= 1; dy++) {
+                                int newY = globalY + dy & WORLD_SIZE - 1;
+                                if (!plate.contains(newX, newY)) {
+                                    fullySubmerged = false;
+                                    break testForFullySubmerged;
+                                }
+                            }
                         }
-                        helperImage.setRGB(globalX, globalY, 0xFF00_00FF);
+                        if (fullySubmerged) {
+                            short sediment = (short) (SUBDUCTION_RATIO * (CONTINENTAL_SHELF - currentHeight));
+                            SUBDUCTIONS[plateId].add(packCollision(collidingPlateId, globalX, globalY, sediment));
+                            collidingPlate.setCrust(globalX, globalY, (short) (currentHeight - SUBDUCTION_STEP));
+                            HEIGHTMAP[globalIndex] -= SUBDUCTION_STEP;
+                            if (HEIGHTMAP[globalIndex] < TRENCH_DEPTH) {
+                                idMap[globalIndex] = (byte) plateId;
+                                HEIGHTMAP[globalIndex] = evaluatingHeight;
+                            }
+                            helperImage.setRGB(globalX, globalY, 0xFF00_00FF);
+                        }
                         continue;
                     }
                     //Continental collisions
