@@ -466,8 +466,8 @@ public class NewPlate {
             newY = this.y;
             newHeight = this.height;
         }
-        int dx = (int) (this.x - newX) & MainTectonics.WORLD_SIZE - 1;
-        int dy = (int) (this.y - newY) & MainTectonics.WORLD_SIZE - 1;
+        int dx = (int)this.x - (int)newX & MainTectonics.WORLD_SIZE - 1;
+        int dy = (int)this.y - (int) newY & MainTectonics.WORLD_SIZE - 1;
         if (newWidth != this.width) {
             if (newHeight != this.height) {
                 //Needs to update both width and height
