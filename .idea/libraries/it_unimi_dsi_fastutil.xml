@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="it.unimi.dsi.fastutil" type="repository">
+    <properties maven-id="it.unimi.dsi:fastutil:8.5.13" />
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/it/unimi/dsi/fastutil/8.5.13/fastutil-8.5.13.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
