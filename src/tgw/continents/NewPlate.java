@@ -819,8 +819,13 @@ public class NewPlate {
         }
         int index = this.getIndex(this.getLocalX(globalX), this.getLocalY(globalY));
         this.mass -= this.heightmap[index];
-        this.heightmap[index] = crust;
-        this.mass += crust;
+        if (crust < MainTectonics.TRENCH_DEPTH) {
+            this.heightmap[index] = Short.MIN_VALUE;
+        }
+        else {
+            this.heightmap[index] = crust;
+            this.mass += crust;
+        }
     }
 
     public static class SegmentData {
